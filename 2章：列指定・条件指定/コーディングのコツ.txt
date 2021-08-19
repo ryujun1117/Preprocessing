@@ -1,0 +1,88 @@
+■SQL（postgreSQL）
+
+-- 2 awesome：読み込むときに asをつけて変数名を短くわかりやすく。
+select
+	reserve_id as rsv_time,
+	hotel_id, customer_id, reserve_datetime,
+	checkin_date, checkin_time, checkout_date
+from reserve_csv
+
+-------------------------------------------------------------------------------------------
+
+-- where not awesome：変数の変更に際して手間が大きい。2行に渡って分かりづらい。
+select
+	*
+from reserve_csv
+where checkin_date >= '2016-10-12'
+and checkin_date <= '2016-10-13'
+
+-------------------------------------------------------------------------------------------
+
+-- awesome：betweenを使ってわかりやすくする。
+select
+	*
+from reserve_csv
+where checkin_date between '2016-10-12' and '2016-10-13'
+
+--------------------------------------------------------------------------------------------
+
+■R　（R studio）：読み込み
+
+reserve_tb <- read.csv('data/reserve.csv', fileEncoding='UTF-8',
+                       header=TRUE, stringsAsFactors = FALSE)
+
+--------------------------------------------------------------------------------------------
+
+# tidyverse package install
+install.packages('tidyverse')
+library(tidyverse)
+
+--------------------------------------------------------------------------------------------
+
+# not awesome：数字使ったらあかん
+reserve_tb[, c(1,2)]
+# awesome
+reserve_tb[, c('reserve_id', 'hotel_id', 'customer_id', 'reserve_datetime',
+               'checkin_date', 'checkin_time', 'checkout_date')]
+
+--------------------------------------------------------------------------------------------
+
+# dplyr package：パイプは出力を入力に渡す
+reserve_tb %>%
+  
+  select(reserve_id, hotel_id, customer_id, reserve_datetime,
+         checkin_date, checkin_time, checkout_date) %>%
+  
+  as.data.frame()
+
+--------------------------------------------------------------------------------------------
+
+# 条件つき抽出 not awesome：変数の数と2行に渡るので読みづらい
+reserve_tb[reserve_tb$checkin_date >= '2016-10-12' &
+             reserve_tb$checkin_date <= '2016-10-13',]
+
+# awesome：as.Dateを使ったほうが読みやすく、速い
+reserve_tb %>%
+  filter(between(as.Date(checkin_date),
+                 as.Date('2016-10-12'), as.Date('2016-10-13')))
+
+--------------------------------------------------------------------------------------------
+
+■Python
+
+# not awesome
+>>> reserve_tb.iloc[:, 0:6]
+
+# awesome
+>>> reserve_tb[["reserve_id", "hotel_id", "customer_id"]]
+
+--------------------------------------------------------------------------------------------
+
+# not awesome
+>>> reserve_tb[(reserve_tb['checkin_date'] >= '2016-10-13') & (reserve_tb['checkin_date'] <= '2016-10-14')]
+
+# awesome：クエリ関数を使おう
+>>> reserve_tb.query('"2016-10-13" <= checkout_date <= "2016-10-14"')
+
+--------------------------------------------------------------------------------------------
+
